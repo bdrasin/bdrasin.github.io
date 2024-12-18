@@ -30,6 +30,12 @@
 		}
 	};
 	//Custom JS for site below
+	window.addEventListener("onEmbeddedMessagingReady", (event) => {
+	  	console.log("Received the onEmbeddedMessagingReady event…");
+	  	console.log("Event detail: ", event.detail);
+		embeddedservice_bootstrap.launchChat;
+	});
+
 	window.addEventListener("onEmbeddedMessagingPreChatSubmitted", (event) => {
 	  	console.log("Received the onEmbeddedMessagingPreChatSubmitted event…");
 	  	console.log("Event detail: ", event.detail);
