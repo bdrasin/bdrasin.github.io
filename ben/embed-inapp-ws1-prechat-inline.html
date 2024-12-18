@@ -4,8 +4,9 @@
 </head>
 <body>
   <p align="center"><font color ="red">ben@sdb6miaw.com</font></p>
-  <div id="topDiv"></div>
-  <div id="targetDiv"></div>
+  <div id="topDiv">
+ 	 <div id="targetDiv"></div>
+  </div>
 
 <script type='text/javascript'>
 	function initEmbeddedMessaging() {
@@ -32,7 +33,6 @@
   	console.log("Received the onEmbeddedMessagingPreChatSubmitted event…");
   	console.log("Event detail: ", event.detail);
 
-	document.getElementById("topDiv").classList.add("expanded");
 	document.getElementById("targetDiv").classList.add("expanded");
 });
 </script>
@@ -55,11 +55,9 @@
       iframe#embeddedMessagingFrame{
 	    box-shadow: none;
       }
-      #targetDiv.expanded {
-	   height:700px;
-      }
       #topDiv{
-	   height: 500px;
+	   height: 700px;
+	   align-content: end;
       }
       #topDiv.expanded {
 	   height:0px;
