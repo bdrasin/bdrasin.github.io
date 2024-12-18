@@ -40,7 +40,9 @@
 	  	console.log("Event detail: ", event.detail);
 
 		document.getElementById("targetDiv").classList.add("expanded");
-		embeddedservice_bootstrap.utilAPI.sendTextMessage(window.prechatQuery);
+		if(window.prechatQuery) {
+			embeddedservice_bootstrap.utilAPI.sendTextMessage(window.prechatQuery);
+		}
 	});
 });
 </script>
