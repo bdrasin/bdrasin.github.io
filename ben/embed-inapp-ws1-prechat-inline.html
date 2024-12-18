@@ -27,14 +27,13 @@
 			console.error('Error loading Embedded Messaging: ', err);
 		}
 	};
-
 	//Custom JS for site below
 	window.addEventListener("onEmbeddedMessagingPreChatSubmitted", (event) => {
   	console.log("Received the onEmbeddedMessagingPreChatSubmitted event…");
   	console.log("Event detail: ", event.detail);
 
 	document.getElementById("topDiv").classList.add("expanded");
-	document.getElementById("topDiv").classList.add("expanded");
+	document.getElementById("targetDiv").classList.add("expanded");
 });
 </script>
 <script type='text/javascript' src='https://benco0.my.site-com.bdrasin-k9q65wjz56ek0.wa.crm.dev:6101/ESWMIAWPRECHAT1734457127058/assets/js/bootstrap.js' onload='initEmbeddedMessaging()'></script>
