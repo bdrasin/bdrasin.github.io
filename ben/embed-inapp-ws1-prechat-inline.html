@@ -114,11 +114,10 @@
 		}
 	});
 	function clearSession() {
-		embeddedservice_bootstrap.userVerificationAPI.clearSession();
 		document.getElementById("targetDiv").classList.remove("expanded");
 		document.getElementById("page-content").classList.remove("expanded");
 		document.getElementById("clearSession").classList.remove("expanded");
-		embeddedservice_bootstrap.utilAPI.launchChat();
+		embeddedservice_bootstrap.userVerificationAPI.clearSession().then( () => { embeddedservice_bootstrap.utilAPI.launchChat() });
 	}
 </script>
 <script type='text/javascript' src='https://benco0.my.site-com.bdrasin-k9q65wjz56ek0.wa.crm.dev:6101/ESWMIAWPRECHAT1734457127058/assets/js/bootstrap.js' onload='initEmbeddedMessaging()'></script>
