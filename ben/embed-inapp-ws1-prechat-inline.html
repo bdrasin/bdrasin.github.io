@@ -99,7 +99,7 @@
 	window.addEventListener("onEmbeddedMessagingPreChatSubmitted", (event) => {
 	  	console.log("Received the onEmbeddedMessagingPreChatSubmitted event…");
 	  	console.log("Event detail: ", event.detail);
-		window.prechatQuery= event.detail.prechatFields._subject;
+		window.prechatQuery= event.detail.prechatVisibleFields._subject;
 	});
 
 	window.addEventListener("onEmbeddedMessagingConversationOpened", (event) => {
