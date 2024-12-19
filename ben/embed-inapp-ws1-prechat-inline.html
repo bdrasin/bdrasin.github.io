@@ -24,7 +24,7 @@
             </nav>
          </div>
       </header>
-      <p align="center"><font color ="red">ben@sdb6miaw.com</font></p>
+      <p align="center">ben@sdb6miaw.com <a id="clearSession" href="javascript:;" onclick="clearSession();"><font color ="red">clear session</font></a></p>
       <div id="topDiv">
          <div id="page-content" class="page-content">
             <div class="wrapper">
@@ -108,10 +108,18 @@
 
 		document.getElementById("targetDiv").classList.add("expanded");
 		document.getElementById("page-content").classList.add("expanded");
+		document.getElementById("clearSession").classlist.add("expanded");
 		if(window.prechatQuery) {
 			embeddedservice_bootstrap.utilAPI.sendTextMessage(window.prechatQuery);
 		}
 	});
+	function clearSession() {
+		embeddedservice_bootstrap.userVerificationAPI.clearSession();
+		document.getElementById("targetDiv").classList.remove("expanded");
+		document.getElementById("page-content").classList.remove("expanded");
+		document.getElementById("clearSession").classList.remove("expanded");
+
+	}
 </script>
 <script type='text/javascript' src='https://benco0.my.site-com.bdrasin-k9q65wjz56ek0.wa.crm.dev:6101/ESWMIAWPRECHAT1734457127058/assets/js/bootstrap.js' onload='initEmbeddedMessaging()'></script>
 
@@ -143,5 +151,8 @@
       }
       #targetDiv.expanded {
 	   height: 700px;
+      }
+      a#clearSession.expanded {
+	   display:none;
       }
     </style>
