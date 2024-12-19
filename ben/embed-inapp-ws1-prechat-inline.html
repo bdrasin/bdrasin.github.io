@@ -93,7 +93,7 @@
 	window.addEventListener("onEmbeddedMessagingReady", (event) => {
 	  	console.log("Received the onEmbeddedMessagingReady event…");
 	  	console.log("Event detail: ", event.detail);
-		embeddedservice_bootstrap.launchChat;
+		embeddedservice_bootstrap.utilAPI.launchChat();
 	});
 
 	window.addEventListener("onEmbeddedMessagingPreChatSubmitted", (event) => {
@@ -118,7 +118,7 @@
 		document.getElementById("targetDiv").classList.remove("expanded");
 		document.getElementById("page-content").classList.remove("expanded");
 		document.getElementById("clearSession").classList.remove("expanded");
-
+		embeddedservice_bootstrap.utilAPI.launchChat();
 	}
 </script>
 <script type='text/javascript' src='https://benco0.my.site-com.bdrasin-k9q65wjz56ek0.wa.crm.dev:6101/ESWMIAWPRECHAT1734457127058/assets/js/bootstrap.js' onload='initEmbeddedMessaging()'></script>
@@ -151,6 +151,9 @@
       }
       #targetDiv.expanded {
 	   height: 700px;
+      }
+      a#clearSession.expanded {
+	   display:block;
       }
       a#clearSession.expanded {
 	   display:none;
