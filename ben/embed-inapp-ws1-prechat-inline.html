@@ -26,7 +26,7 @@
       </header>
       <p align="center"><font color ="red">ben@sdb6miaw.com</font></p>
       <div id="topDiv">
-         <div class="page-content">
+         <div id="page-content" class="page-content">
             <div class="wrapper">
                <div class="home">
                   <h1 class="page-heading">Articles</h1>
@@ -107,6 +107,7 @@
 	  	console.log("Event detail: ", event.detail);
 
 		document.getElementById("targetDiv").classList.add("expanded");
+		document.getElementById("page-content").classList.add("expanded");
 		if(window.prechatQuery) {
 			embeddedservice_bootstrap.utilAPI.sendTextMessage(window.prechatQuery);
 		}
@@ -127,6 +128,9 @@
             left: 11px;
             position: relative;
             
+      }
+      div#page-content.expanded{
+	    display:none;
       }
       iframe#embeddedMessagingFrame{
 	    box-shadow: none;
