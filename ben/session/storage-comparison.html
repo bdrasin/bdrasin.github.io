@@ -134,6 +134,10 @@
                 <label for="sessionText">Session Storage Text:</label>
                 <input type="text" id="sessionText" placeholder="This will be saved in session storage">
             </div>
+            <div class="input-group">
+                <label for="indexedDBText">IndexedDB Text:</label>
+                <input type="text" id="indexedDBText" placeholder="This will be saved in IndexedDB">
+            </div>
             <div class="button-group">
                 <button class="save-btn" onclick="saveToStorage()">Save to Storage</button>
                 <button class="load-btn" onclick="loadFromStorage()">Load from Storage</button>
@@ -149,6 +153,30 @@
     </div>
 
     <script>
+        // Initialize IndexedDB
+        let db;
+        const dbName = "StorageComparisonDemo";
+        const storeName = "mainPageStore";
+        
+        const request = indexedDB.open(dbName, 1);
+
+        request.onerror = (event) => {
+            console.error("Database error:", event.target.error);
+            showStatus('Error accessing IndexedDB');
+        };
+
+        request.onupgradeneeded = (event) => {
+            db = event.target.result;
+            if (!db.objectStoreNames.contains(storeName)) {
+                db.createObjectStore(storeName, { keyPath: "id" });
+            }
+        };
+
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            // Initial load will happen through the existing load event listener
+        };
+
         function showStatus(message) {
             const status = document.getElementById('status');
             status.textContent = message;
@@ -162,11 +190,24 @@
         function saveToStorage() {
             const localText = document.getElementById('localText').value;
             const sessionText = document.getElementById('sessionText').value;
+            const indexedDBText = document.getElementById('indexedDBText').value;
             
+            // Save to Local and Session Storage
             localStorage.setItem('mainPageLocalText', localText);
             sessionStorage.setItem('mainPageSessionText', sessionText);
             
-            showStatus('Values successfully saved to storage!');
+            // Save to IndexedDB
+            const transaction = db.transaction([storeName], "readwrite");
+            const objectStore = transaction.objectStore(storeName);
+            objectStore.put({ id: 'mainPage', value: indexedDBText });
+            
+            transaction.oncomplete = () => {
+                showStatus('Values successfully saved to storage!');
+            };
+            
+            transaction.onerror = () => {
+                showStatus('Error saving to IndexedDB');
+            };
         }
 
         function loadFromStorage() {
@@ -176,7 +217,21 @@
             document.getElementById('localText').value = localText;
             document.getElementById('sessionText').value = sessionText;
             
-            showStatus('Values loaded from storage!');
+            // Load from IndexedDB
+            const transaction = db.transaction([storeName], "readonly");
+            const objectStore = transaction.objectStore(storeName);
+            const request = objectStore.get('mainPage');
+            
+            request.onsuccess = () => {
+                if (request.result) {
+                    document.getElementById('indexedDBText').value = request.result.value;
+                }
+                showStatus('Values loaded from storage!');
+            };
+            
+            request.onerror = () => {
+                showStatus('Error loading from IndexedDB');
+            };
         }
 
         // Load any existing values when the page loads
