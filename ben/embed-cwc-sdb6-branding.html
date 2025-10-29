@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+   <head>
+</head>
+<body>
+  <p align="center"><font color ="red">ben@sdb6miaw.com</font></p>
+
+<script type='text/javascript'>
+	function initEmbeddedMessaging() {
+		try {
+			agentforce_messaging.settings.embeddedServiceConfig = {
+                "branding": 
+                [{"n": "botImage", "v": "https://icons.iconarchive.com/icons/hopstarter/malware/256/Spy-icon.png"}],
+                "standardLabels":
+                [{"sectionName":"EmbeddedMessagingChatHeader", "labelName": "DefaultHeaderText", "labelValue":"This is my custom label"}]
+            };
+			embeddedservice_bootstrap.settings.language = 'en'; // For example, enter 'en' or 'en-US'
+			embeddedservice_bootstrap.settings.devMode = true;
+
+			embeddedservice_bootstrap.init(
+				'00DSG00000YKxI5',
+				'ASA_1',
+				'https://orgfarm-956de39b86.test1.my.pc-rnd.site.com/ESWASA11757374899000',
+				{
+					scrt2URL: 'https://orgfarm-956de39b86.test1.my.pc-rnd.salesforce-scrt.com'
+				}
+			);
+		} catch (err) {
+			console.error('Error loading Embedded Messaging: ', err);
+		}
+	};
+</script>
+<script type='text/javascript' src='https://orgfarm-956de39b86.test1.my.pc-rnd.site.com/ESWASA11757374899000/assets/js/bootstrap.js' onload='initEmbeddedMessaging()'></script>
+
+   </body>
+</html>
+    <style>
+       body {          
+      }
+      #button_goes_here{
+            width: 100%; 
+            height: 100%; 
+            margin: 0 auto;
+            position: relative;
+            
+      }
+    </style>
