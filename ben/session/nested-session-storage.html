@@ -110,8 +110,15 @@
             displayElement.textContent = value;
         }
 
-        // --- Initialization on page load ---
-        loadData();
+        // Run immediately on load to display the initial state (read only)
+        // and then perform the first update/save.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial read and display
+            loadData();
+            
+            // Start the loop
+            setInterval(incrementValue, 10000); // Repeat every 10 seconds (10000ms)
+        });
     </script>
 
 </body>
