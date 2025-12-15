@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain B - SessionStorage Logic</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 10px; 
+            background-color: #f0f0f0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+        .current-value { 
+            font-size: 1.5em; 
+            color: steelblue; 
+            font-weight: bold; 
+        }
+        .message { 
+            margin-top: 10px; 
+            padding: 5px; 
+            border-left: 3px solid orange;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Iframe Content (Domain B: bdrasin.github.io)</h2>
+        <p>This content is running on **Domain B** and interacting with its own `sessionStorage`.</p>
+
+        <p>Key: <code>TEST_SESSION_STORAGE_KEY</code></p>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const KEY = "TEST_SESSION_STORAGE_KEY";
+        const statusDiv = document.getElementById('status');
+
+        function updateStorageAndDisplay() {
+            // 1. Read the current value
+            let currentValue = sessionStorage.getItem(KEY);
+            let numberValue = parseInt(currentValue, 10);
+            
+            // Handle initial state (null or not a number)
+            if (isNaN(numberValue)) {
+                numberValue = 0;
+            }
+
+            // 2. Increment the value
+            const newValue = numberValue + 1;
+
+            // 3. Save the new value
+            try {
+                sessionStorage.setItem(KEY, newValue.toString());
+            } catch (e) {
+                // Should only happen if storage is full or disabled
+                console.error("Error saving to sessionStorage:", e);
+                statusDiv.innerHTML += `<p class="message" style="color: red;">ERROR SAVING: ${e.message}</p>`;
+            }
+
+            // Display results
+            statusDiv.innerHTML = `
+                <p class="message">
+                    **Time:** ${new Date().toLocaleTimeString()}<br>
+                    **Read Value:** ${currentValue === null ? 'NULL (First Load)' : currentValue}<br>
+                    **Incrementing to:** <span class="current-value">${newValue}</span><br>
+                    **Saved Value:** ${newValue}
+                </p>
+            `;
+            
+            console.log(`[Domain B] Read: ${currentValue}, Saved: ${newValue}`);
+        }
+
+        // Run immediately on load to display the initial state (read only)
+        // and then perform the first update/save.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial read and display
+            let initialValue = sessionStorage.getItem(KEY);
+            statusDiv.innerHTML = `<p class="message">**Initial Load Read:** ${initialValue === null ? 'NULL' : initialValue}</p>`;
+            
+            // Start the loop
+            updateStorageAndDisplay(); // First run immediately
+            setInterval(updateStorageAndDisplay, 10000); // Repeat every 10 seconds (10000ms)
+        });
+    </script>
+</body>
+</html>
