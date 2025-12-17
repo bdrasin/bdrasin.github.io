@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iframe: Storage Test</title>
+</head>
+<body>
+    <h2>Iframe Origin: domain-B.com</h2>
+    <p>Key: <code>test_count</code></p>
+    
+    <button onclick="initialUserInteraction()">1. Initial Click (Works)</button>
+    <br><br>
+    
+    <button onclick="simulateNetworkFailure()">2. Test Synchronous Failure</button>
+    <br><br>
+
+    <button onclick="simulateNetworkSuccess()">3. Test Asynchronous Success (The Fix)</button>
+    
+    <script>
+        const STORAGE_KEY = 'test_count';
+
+        // --- Utility Functions ---
+
+        function getPollCount() {
+            try {
+                const stored = sessionStorage.getItem(STORAGE_KEY);
+                return stored ? JSON.parse(stored).value : 0;
+            } catch (e) {
+                console.error("Failed to parse sessionStorage.", e);
+                return 0;
+            }
+        }
+
+        function setPollCount(count) {
+            const data = JSON.stringify({ value: count, timestamp: new Date().toISOString() });
+            sessionStorage.setItem(STORAGE_KEY, data);
+            
+            // Check the storage immediately after setting
+            const newCount = getPollCount();
+            if (newCount === count) {
+                console.log(`[SUCCESS] Storage set to: ${count}`);
+            } else {
+                // This is the key failure point: setItem reports success, but storage doesn't update.
+                console.error(`[FAILURE] setItem called for ${count}, but actual storage value is ${newCount}. (SILENT FAILURE)`);
+            }
+        }
+
+        // --- Test Functions ---
+
+        // This action uses the initial user gesture to implicitly grant a temporary ITP exception.
+        function initialUserInteraction() {
+            const currentCount = getPollCount() + 1;
+            console.log(`--- Running Initial Click (${currentCount}) ---`);
+            setPollCount(currentCount);
+        }
+
+        // This simulates the synchronous call immediately after the network event.
+        function simulateNetworkFailure() {
+            const currentCount = getPollCount() + 1;
+            console.log(`\n--- Running Synchronous Failure Test (${currentCount}) ---`);
+
+            // Use fetch/XHR to simulate the long-poll network activity.
+            // Using a public, non-cacheable endpoint is best practice for a POC.
+            fetch('https://api.ipify.org?format=json') 
+                .then(response => response.json())
+                .then(() => {
+                    // CRITICAL STEP: Synchronous call immediately following network I/O.
+                    setPollCount(currentCount); 
+                })
+                .catch(e => console.error("Network simulation failed.", e));
+        }
+
+        // This simulates the successful asynchronous call (your workaround).
+        function simulateNetworkSuccess() {
+            const currentCount = getPollCount() + 1;
+            console.log(`\n--- Running Asynchronous Success Test (${currentCount}) ---`);
+            
+            fetch('https://api.ipify.org?format=json') 
+                .then(response => response.json())
+                .then(() => {
+                    // CRITICAL STEP: Defer the call using setTimeout.
+                    setTimeout(() => {
+                        setPollCount(currentCount);
+                    }, 1); // 1ms is enough to yield to the event loop
+                })
+                .catch(e => console.error("Network simulation failed.", e));
+        }
+    </script>
+</body>
+</html>
