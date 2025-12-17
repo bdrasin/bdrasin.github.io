@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><title>Outer Iframe (Domain 2)</title></head>
+<body style="background: #eee;">
+    <h3>Outer Iframe (Domain 2)</h3>
+    <p>Last Poll Count: <strong id="display">0</strong></p>
+    <div id="log" style="font-family:monospace; font-size:12px;"></div>
+
+    <iframe src="cdm.html" style="width:100%; height:200px; border:1px dashed blue;"></iframe>
+
+    <script>
+        const display = document.getElementById('display');
+        const log = document.getElementById('log');
+
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'POLL_RECEIVED') {
+                const newCount = event.data.count;
+                
+                // BUG REPRODUCTION POINT: 
+                // We try to set storage immediately upon receiving the message.
+                // Change 'false' to 'true' to test the 1ms fix.
+                const useFix = false; 
+
+                const doWrite = () => {
+                    sessionStorage.setItem('poll_count', JSON.stringify({value: newCount}));
+                    
+                    // Verify
+                    const verified = JSON.parse(sessionStorage.getItem('poll_count')).value;
+                    const status = (verified === newCount) ? "✅ SUCCESS" : "❌ SILENT FAILURE";
+                    
+                    log.innerHTML += `<div>[${new Date().toLocaleTimeString()}] Tried: ${newCount}, Got: ${verified} - ${status}</div>`;
+                    display.innerText = verified;
+                };
+
+                if (useFix) {
+                    setTimeout(doWrite, 1);
+                } else {
+                    doWrite();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
