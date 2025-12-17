@@ -1,88 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Iframe: Storage Test</title>
+    <title>Iframe: Legacy Long-Polling Bug POC</title>
+    <style>
+        body { font-family: sans-serif; font-size: 14px; line-height: 1.4; }
+        .log { background: #f4f4f4; padding: 10px; border: 1px solid #ccc; height: 150px; overflow-y: scroll; font-family: monospace; }
+        .status-box { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .failure { background-color: #f8d7da; color: #721c24; }
+    </style>
 </head>
 <body>
     <h2>Iframe Origin: domain-B.com</h2>
-    <p>Key: <code>test_count</code></p>
+    <p>This POC simulates a long-polling loop using <code>XMLHttpRequest</code>.</p>
     
-    <button onclick="initialUserInteraction()">1. Initial Click (Works)</button>
-    <br><br>
-    
-    <button onclick="simulateNetworkFailure()">2. Test Synchronous Failure</button>
-    <br><br>
+    <button onclick="initialUserInteraction()">1. Initial Click (Authorize ITP)</button>
+    <button onclick="startLongPolling(false)">2. Start Buggy Loop (Sync)</button>
+    <button onclick="startLongPolling(true)">3. Start Fixed Loop (Async/1ms)</button>
+    <button onclick="stopPolling()">Stop Loop</button>
 
-    <button onclick="simulateNetworkSuccess()">3. Test Asynchronous Success (The Fix)</button>
+    <div id="status" class="status-box">Status: Ready</div>
+    <div id="consoleLog" class="log"></div>
     
     <script>
-        const STORAGE_KEY = 'test_count';
+        const STORAGE_KEY = 'poll_count';
+        const logEl = document.getElementById('consoleLog');
+        const statusEl = document.getElementById('status');
+        let isPolling = false;
 
-        // --- Utility Functions ---
+        function customLog(msg, isError = false) {
+            const div = document.createElement('div');
+            div.style.color = isError ? 'red' : 'black';
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logEl.appendChild(div);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
 
-        function getPollCount() {
+        function getStoredCount() {
             try {
                 const stored = sessionStorage.getItem(STORAGE_KEY);
                 return stored ? JSON.parse(stored).value : 0;
-            } catch (e) {
-                console.error("Failed to parse sessionStorage.", e);
-                return 0;
-            }
+            } catch (e) { return 0; }
         }
 
-        function setPollCount(count) {
-            const data = JSON.stringify({ value: count, timestamp: new Date().toISOString() });
-            sessionStorage.setItem(STORAGE_KEY, data);
-            
-            // Check the storage immediately after setting
-            const newCount = getPollCount();
-            if (newCount === count) {
-                console.log(`[SUCCESS] Storage set to: ${count}`);
+        // --- The Core Logic ---
+
+        function updateStorage(useAsync) {
+            const currentCount = getStoredCount() + 1;
+
+            const performWrite = () => {
+                const data = JSON.stringify({ value: currentCount });
+                sessionStorage.setItem(STORAGE_KEY, data);
+
+                // Verification
+                const verifiedValue = getStoredCount();
+                if (verifiedValue === currentCount) {
+                    customLog(`Success: Count is now ${verifiedValue}`);
+                    statusEl.className = "status-box success";
+                    statusEl.textContent = `Status: Active - Count ${verifiedValue}`;
+                } else {
+                    customLog(`SILENT FAILURE: Tried to set ${currentCount}, but value is ${verifiedValue}`, true);
+                    statusEl.className = "status-box failure";
+                    statusEl.textContent = `Status: Bug Reproduced! (Value stuck at ${verifiedValue})`;
+                }
+            };
+
+            if (useAsync) {
+                // The Fix: Yielding to the event loop
+                setTimeout(performWrite, 1);
             } else {
-                // This is the key failure point: setItem reports success, but storage doesn't update.
-                console.error(`[FAILURE] setItem called for ${count}, but actual storage value is ${newCount}. (SILENT FAILURE)`);
+                // The Bug: Synchronous call immediately in the XHR callback
+                performWrite();
             }
         }
 
-        // --- Test Functions ---
+        function longPoll(useAsync) {
+            if (!isPolling) return;
 
-        // This action uses the initial user gesture to implicitly grant a temporary ITP exception.
+            const xhr = new XMLHttpRequest();
+            // Using a cache-busting timestamp to ensure a real network round-trip
+            xhr.open('GET', 'https://api.ipify.org?format=json&t=' + Date.now(), true);
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) { // Request Finished
+                    if (xhr.status === 200) {
+                        // 1. Update storage (where the failure happens)
+                        updateStorage(useAsync);
+
+                        // 2. Immediately initiate next poll (Simulating long-polling loop)
+                        if (isPolling) {
+                            longPoll(useAsync);
+                        }
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // --- UI Triggers ---
+
         function initialUserInteraction() {
-            const currentCount = getPollCount() + 1;
-            console.log(`--- Running Initial Click (${currentCount}) ---`);
-            setPollCount(currentCount);
+            const initialCount = 1;
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ value: initialCount }));
+            customLog("Initial User Interaction: Storage set to 1.");
         }
 
-        // This simulates the synchronous call immediately after the network event.
-        function simulateNetworkFailure() {
-            const currentCount = getPollCount() + 1;
-            console.log(`\n--- Running Synchronous Failure Test (${currentCount}) ---`);
-
-            // Use fetch/XHR to simulate the long-poll network activity.
-            // Using a public, non-cacheable endpoint is best practice for a POC.
-            fetch('https://api.ipify.org?format=json') 
-                .then(response => response.json())
-                .then(() => {
-                    // CRITICAL STEP: Synchronous call immediately following network I/O.
-                    setPollCount(currentCount); 
-                })
-                .catch(e => console.error("Network simulation failed.", e));
+        function startLongPolling(useAsync) {
+            if (isPolling) return;
+            isPolling = true;
+            customLog(`Starting ${useAsync ? 'Fixed (Async)' : 'Buggy (Sync)'} loop...`);
+            longPoll(useAsync);
         }
 
-        // This simulates the successful asynchronous call (your workaround).
-        function simulateNetworkSuccess() {
-            const currentCount = getPollCount() + 1;
-            console.log(`\n--- Running Asynchronous Success Test (${currentCount}) ---`);
-            
-            fetch('https://api.ipify.org?format=json') 
-                .then(response => response.json())
-                .then(() => {
-                    // CRITICAL STEP: Defer the call using setTimeout.
-                    setTimeout(() => {
-                        setPollCount(currentCount);
-                    }, 1); // 1ms is enough to yield to the event loop
-                })
-                .catch(e => console.error("Network simulation failed.", e));
+        function stopPolling() {
+            isPolling = false;
+            customLog("Loop stopped.");
         }
     </script>
 </body>
