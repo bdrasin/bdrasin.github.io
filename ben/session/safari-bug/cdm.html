@@ -17,6 +17,7 @@
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     count++;
                     document.getElementById('status').innerText = "Message Received. Sending to parent...";
+                    console.log("DEBUG::: storage is: " + JSON.stringify(storage, null, 2));
                     
                     // Communicate result to Outer Frame
                     window.parent.postMessage({
