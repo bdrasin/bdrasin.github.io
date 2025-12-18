@@ -17,6 +17,7 @@
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     count++;
                     document.getElementById('status').innerText = "Message Received. Sending to parent...";
+                    console.log('DEBUG::: Is document secure?', window.isSecureContext, 'Storage Type:', typeof sessionStorage);
                     console.log("DEBUG::: storage is: " + JSON.stringify(sessionStorage, null, 2));
                     
                     // Communicate result to Outer Frame
