@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><title>Inner Iframe (Domain 2)</title></head>
+<body style="background: #fff;">
+    <h4>Inner Iframe (Long-Poll Loop)</h4>
+    <p id="status">Polling...</p>
+
+    <script>
+        let count = 0;
+
+        function startLongPoll() {
+            const xhr = new XMLHttpRequest();
+            // Cache busting URL
+            xhr.open('GET', 'https://api.ipify.org?format=json&t=' + Date.now(), true);
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    count++;
+                    document.getElementById('status').innerText = "Message Received. Sending to parent...";
+                    
+                    // Communicate result to Outer Frame
+                    window.parent.postMessage({
+                        type: 'POLL_RECEIVED',
+                        count: count
+                    }, '*');
+
+                    // Immediate loop back (Long-Polling)
+                    setTimeout(startLongPoll, 500); 
+                }
+            };
+            xhr.send();
+        }
+
+        // Start automatically on load - NO USER GESTURE
+        window.onload = startLongPoll;
+    </script>
+</body>
+</html>
