@@ -21,7 +21,7 @@ Paste the identity token here
 		try {
 			embeddedservice_bootstrap.settings.language = 'en'; // For example, enter 'en' or 'en-US'
 			embeddedservice_bootstrap.settings.devMode = true;
-      embeddedservice_bootstrap.settings.embeddedServiceConfig.embeddedServiceMessagingChannel.authMode = "ExchangeJWTAuth";
+			embeddedservice_bootstrap.settings.embeddedServiceConfig.embeddedServiceMessagingChannel.authMode = "ExchangeJWTAuth";
 
 			embeddedservice_bootstrap.init(
 				'00DSB00000aR92T',
@@ -36,15 +36,14 @@ Paste the identity token here
 			console.error('Error loading Embedded Messaging: ', err);
 		}
 	};
-
-  function handleButtonClick() {
-    const identity_token = document.getElementById('idtoken').value;
-    embeddedservice_bootstrap.userVerificationAPI.setIdentityToken({
-      identityTokenType: "ExchangeJWT",
-      identityToken: identity_token
-    );
-
-  }
+	
+	function handleButtonClick() {
+		const identity_token = document.getElementById('idtoken').value;
+		embeddedservice_bootstrap.userVerificationAPI.setIdentityToken({
+			identityTokenType: "ExchangeJWT",
+			identityToken: identity_token
+		});
+	}
 </script>
 <script type='text/javascript' src='https://orgfarm-3e2df65d56.my.localhost.sfdcdev.site.com:6101/ESWMIAW11775256524467/assets/js/bootstrap.js' onload='initEmbeddedMessaging()'></script>
 
