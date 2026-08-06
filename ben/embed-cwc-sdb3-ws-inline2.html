@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>CWC inline mode test</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                min-height: 100vh;
+                margin: 0;
+                display: grid;
+                place-items: center;
+                background: #f3f3f3;
+                color: #181818;
+                font-family: Arial, sans-serif;
+            }
+
+            main {
+                width: min(100% - 2rem, 480px);
+            }
+
+            h1 {
+                margin: 0 0 1rem;
+                font-size: 1.25rem;
+                text-align: center;
+            }
+
+            #chat-container {
+                width: 100%;
+                height: min(742px, calc(100vh - 10rem));
+                min-height: 480px;
+                overflow: hidden;
+                background: #fff;
+                border: 1px solid #c9c9c9;
+                border-radius: 1rem;
+                box-shadow: 0 0.5rem 2rem rgb(0 0 0 / 12%);
+            }
+
+            .controls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.75rem;
+                margin-top: 1rem;
+            }
+
+            button {
+                min-height: 44px;
+                padding: 0.65rem 1rem;
+                border: 1px solid #0176d3;
+                border-radius: 0.25rem;
+                background: #0176d3;
+                color: #fff;
+                font: inherit;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background: #014486;
+            }
+
+            button:focus-visible {
+                outline: 3px solid #032d60;
+                outline-offset: 2px;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>CWC inline mode test</h1>
+            <div id="chat-container"></div>
+            <div class="controls" aria-label="Chat controls">
+                <button type="button" id="launch-chat">Launch chat</button>
+                <button type="button" id="minimize-chat">Minimize chat</button>
+                <button type="button" id="maximize-chat">Maximize chat</button>
+            </div>
+        </main>
+
+        <script>
+            function callChatApi(method) {
+                const api = window.embeddedservice_bootstrap?.utilAPI;
+                if (!api) {
+                    console.error(`Cannot call ${method}: Embedded Messaging is not ready.`);
+                    return;
+                }
+                api[method]().catch((error) => console.error(`${method} failed:`, error));
+            }
+
+            document.getElementById('launch-chat').addEventListener('click', () => callChatApi('launchChat'));
+            document.getElementById('minimize-chat').addEventListener('click', () => callChatApi('minimizeChat'));
+            document.getElementById('maximize-chat').addEventListener('click', () => callChatApi('maximizeChat'));
+
+            function initEmbeddedMessaging() {
+                try {
+                    embeddedservice_bootstrap.settings.language = 'en';
+                    embeddedservice_bootstrap.settings.devMode = true;
+                    embeddedservice_bootstrap.settings.displayMode = 'inline';
+                    embeddedservice_bootstrap.settings.targetElement = document.getElementById('chat-container');
+
+                    embeddedservice_bootstrap.init(
+                        '00DSB00000da1NJ',
+                        'CWC03_External',
+                        'https://orgfarm-46c4c41fb0.test1.my.pc-rnd.site.com/ESWCWC01External1763517787129',
+                        {
+                            scrt2URL: 'https://orgfarm-46c4c41fb0.test1.my.pc-rnd.salesforce-scrt.com'
+                        }
+                    );
+                } catch (error) {
+                    console.error('Error loading Embedded Messaging:', error);
+                }
+            }
+        </script>
+        <script
+            src="https://orgfarm-46c4c41fb0.test1.my.pc-rnd.site.com/ESWCWC01External1763517787129/assets/js/bootstrap.js"
+            onload="initEmbeddedMessaging()">
+        </script>
+    </body>
+</html>
