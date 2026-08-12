@@ -91,8 +91,26 @@
             }
 
             document.getElementById('launch-chat').addEventListener('click', () => callChatApi('launchChat'));
-            document.getElementById('minimize-chat').addEventListener('click', () => callChatApi('minimizeChat'));
-            document.getElementById('maximize-chat').addEventListener('click', () => callChatApi('maximizeChat'));
+            document.getElementById('minimize-chat').addEventListener('click', () => {
+                callChatApi('minimizeChat');
+                const c = document.getElementById('chat-container');
+                c.style.height = '';
+                c.style.minHeight = '';
+                c.style.border = '';
+            });
+            function restoreChatContainer() {
+                const c = document.getElementById('chat-container');
+                c.style.height = 'min(742px, calc(100vh - 10rem))';
+                c.style.minHeight = '480px';
+                c.style.border = '1px solid #c9c9c9';
+            }
+
+            document.getElementById('maximize-chat').addEventListener('click', () => {
+                callChatApi('maximizeChat');
+                restoreChatContainer();
+            });
+
+            window.addEventListener('afterMaximize', restoreChatContainer);
 
             function initEmbeddedMessaging() {
                 try {
@@ -104,9 +122,10 @@
                     embeddedservice_bootstrap.init(
                         '00DSB00000da1NJ',
                         'CWC03_External',
-                        'https://orgfarm-46c4c41fb0.test1.my.pc-rnd.site.com/ESWCWC01External1763517787129',
+                        'https://orgfarm-6cde2cad26.my.site-com.mocwvtmjsftx1u5thhy5xt.wc.crm.dev:6101/ESWCWC11785950662402',
                         {
-                            scrt2URL: 'https://orgfarm-46c4c41fb0.test1.my.pc-rnd.salesforce-scrt.com'
+                            scrt2URL: 'https://orgfarm-46c4c41fb0.test1.my.pc-rnd.salesforce-scrt.com',
+                            siteURL: 'https://orgfarm-6cde2cad26.my.site-com.mocwvtmjsftx1u5thhy5xt.wc.crm.dev:6101/ESWCWC11785950662402'
                         }
                     );
                 } catch (error) {
@@ -115,7 +134,7 @@
             }
         </script>
         <script
-            src="https://orgfarm-46c4c41fb0.test1.my.pc-rnd.site.com/ESWCWC01External1763517787129/assets/js/bootstrap.js"
+            src="https://orgfarm-6cde2cad26.my.site-com.mocwvtmjsftx1u5thhy5xt.wc.crm.dev:6101/ESWCWC11785950662402/assets/js/init.js"
             onload="initEmbeddedMessaging()">
         </script>
     </body>
