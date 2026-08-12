@@ -110,7 +110,7 @@
                 restoreChatContainer();
             });
 
-            window.addEventListener('afterMaximize', restoreChatContainer);
+            window.addEventListener('onEmbeddedMessagingWindowMaximized', restoreChatContainer);
 
             function initEmbeddedMessaging() {
                 try {
