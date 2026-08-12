@@ -94,9 +94,9 @@
             document.getElementById('minimize-chat').addEventListener('click', () => {
                 callChatApi('minimizeChat');
                 const c = document.getElementById('chat-container');
-                c.style.height = '';
-                c.style.minHeight = '';
-                c.style.border = '';
+                c.style.height = '0';
+                c.style.minHeight = '0';
+                c.style.border = 'none';
             });
             function restoreChatContainer() {
                 const c = document.getElementById('chat-container');
