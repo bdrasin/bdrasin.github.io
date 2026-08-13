@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE" />
+  <meta HTTP-EQUIV="Expires" content="Mon, 01 Jan 1990 12:00:00 GMT" />
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
+
+  <!--
+    Salesforce VF framework scripts below.
+    These will be blocked by CORS / auth when served from GitHub Pages — they
+    are all wrapped in try/catch or are non-critical for the chat latency test.
+    Leave them in so the page mirrors the original as closely as possible.
+  -->
+  <script src="https://racv--uat1.sandbox.my.site.com/static/111213/js/perf/stub.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    window.Sfdc = window.Sfdc || {};
+    Sfdc.xdomain = Sfdc.xdomain || {};
+    Sfdc.xdomain.sfdcXDomainProxy = 'https://racv--uat1.sandbox.my.site.com/support/console/xdomain/30.0/crossDomainProxy.html';
+  </script>
+  <script src="https://racv--uat1.sandbox.my.site.com/support/console/xdomain/30.0/xdomain.js" type="text/javascript"></script>
+  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1752551382262/ui-sfdc-javascript-impl/SfdcCore.js" type="text/javascript"></script>
+  <script>
+    //<![CDATA[
+    (function() {
+        window.lmsInitialized = false;
+        if (!window.lmsConfig) {
+            window.lmsConfig = {
+                lmsRegistry: {},
+            };
+            window.lmsInitialized = true;
+        } else {
+            window.console.error('window.lmsConfig has already been defined.');
+        }
+    })();
+    //]]>
+  </script>
+  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1773444835262/sfdc/AuraAlohaFrameNavigator.js" type="text/javascript"></script>
+  <script src="https://racv--uat1.sandbox.my.site.com/sforce/one/67.0/api.js" type="text/javascript"></script>
+  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1746634855262/sfdc/IframeThirdPartyContextLogging.js" type="text/javascript"></script>
+  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1647410351262/sfdc/NetworkTracking.js" type="text/javascript"></script>
+  <script>try{ NetworkTracking.init('https://racv--uat1.sandbox.my.site.com/_ui/networks/tracking/NetworkTrackingServlet', 'network', '0669p0000034RCn'); }catch(x){}try{ NetworkTracking.logPageView();}catch(x){}</script>
+  <script>
+    (function(UITheme) {
+        UITheme.getUITheme = function() {
+            return UserContext.uiTheme;
+        };
+    }(window.UITheme = window.UITheme || {}));
+  </script>
+
+  <style type="text/css">
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+    .notice {
+      max-width: 640px;
+      margin: 20px auto;
+      padding: 14px 16px;
+      background: #fff8e5;
+      border-left: 5px solid #e6a700;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .notice strong { display: block; margin-bottom: 6px; }
+    .notice p { margin: 0 0 8px; }
+    .notice ol, .notice ul { margin: 6px 0 10px 18px; padding: 0; }
+    .notice li { margin-bottom: 4px; }
+    .choice {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+    }
+    .choice label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    .choice select {
+      width: 100%;
+      max-width: 360px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .choice .hint {
+      margin-top: 8px;
+      color: #555;
+      font-size: 12px;
+    }
+    .status {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #444;
+    }
+    code {
+      font-size: 12px;
+      background: #f0f0f0;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .scroll-hint {
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      padding: 8px 8px 16px;
+    }
+    .spacer {
+      height: 100vh;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    }
+  </style>
+</head>
+<body>
+  <div class="notice">
+    <strong>Non-production chat latency test page</strong>
+    <p>If you don&#8217;t see chat, scroll down &#8212; the button is bottom-right.</p>
+
+    <p><strong>Cold session (mobile)</strong></p>
+    <ol>
+      <li>iPhone Safari &#8594; Settings &#8594; Apps &#8594; Safari &#8594; Clear History and Website Data (or use a Private tab).</li>
+      <li>Also clear data for this host and, if listed, *.salesforce-scrt.com / *.my.site.com.</li>
+      <li>Open this page cold &#8594; tap chat &#8594; time Legal, then Welcome.</li>
+    </ol>
+
+    <div class="choice">
+      <label for="deploymentSelect">Deployment</label>
+      <select id="deploymentSelect">
+        <option value="default">Default &#8212; current RACV Enhanced Chat</option>
+        <option value="mobile">Mobile test &#8212; mobile deployment type created for testing Salesforce&#8217;s recommendation</option>
+      </select>
+
+      <div class="hint">
+        <p><strong>Default:</strong> existing RACV Enhanced Chat web deployment.</p>
+        <p><strong>Mobile test:</strong> mobile deployment type created for testing Salesforce&#8217;s recommendation.</p>
+        <p>
+          Changing the dropdown <strong>reloads this page</strong> and loads that chat automatically.
+          To compare both, switch the dropdown (or use the URL) so each run is a fresh load.
+        </p>
+        <p>
+          <strong>URL shortcut:</strong>
+          <code>?dep=default</code> or
+          <code>?dep=mobile</code>
+        </p>
+      </div>
+      <div class="status" id="status">Loading deployment&#8230;</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">Scroll the page down to move the chat button above the browser bar</div>
+  <div aria-hidden="true" class="spacer"></div>
+
+  <script type="text/javascript">
+    var DEPLOYMENTS = {
+      default: {
+        label: 'Default',
+        orgId: '00D9p000008D5DN',
+        name: 'RACV_Enhanced_Chat',
+        siteUrl: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392',
+        scrt2URL: 'https://racv--uat1.sandbox.my.salesforce-scrt.com',
+        bootstrapSrc: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392/assets/js/bootstrap.min.js'
+      },
+      mobile: {
+        label: 'Mobile test',
+        orgId: '00D9p000008D5DN',
+        name: 'RACV_Enhanced_Chat_Mobile_Test',
+        siteUrl: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392',
+        scrt2URL: 'https://racv--uat1.sandbox.my.salesforce-scrt.com',
+        bootstrapSrc: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392/assets/js/bootstrap.min.js'
+      }
+    };
+
+    // When hosted outside Salesforce the iframe trick no longer works — just
+    // read from this page's own query string.
+    function getDepFromUrl() {
+      var params = new URLSearchParams(window.location.search);
+      var dep = params.get('dep');
+      return (dep === 'mobile' || dep === 'default') ? dep : 'default';
+    }
+
+    function reloadWithDep(dep) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('dep', dep);
+      window.location.replace(url.toString());
+    }
+
+    function setStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+
+    function initEmbeddedMessaging(cfg) {
+      try {
+        embeddedservice_bootstrap.settings.language = 'en_US';
+        embeddedservice_bootstrap.init(
+          cfg.orgId,
+          cfg.name,
+          cfg.siteUrl,
+          { scrt2URL: cfg.scrt2URL }
+        );
+        setStatus('Loaded: ' + cfg.label + ' (' + cfg.name + '). Switch the dropdown to reload with the other deployment.');
+      } catch (err) {
+        console.error('Error loading Embedded Messaging: ', err);
+        setStatus('Error loading chat. See console.');
+      }
+    }
+
+    function loadChat(key) {
+      var cfg = DEPLOYMENTS[key];
+      if (!cfg) {
+        setStatus('Unknown deployment.');
+        return;
+      }
+      setStatus('Loading ' + cfg.label + '…');
+      var s = document.createElement('script');
+      s.type = 'text/javascript';
+      s.src = cfg.bootstrapSrc;
+      s.onload = function () { initEmbeddedMessaging(cfg); };
+      s.onerror = function () { setStatus('Failed to load bootstrap.js'); };
+      document.body.appendChild(s);
+    }
+
+    (function boot() {
+      var dep = getDepFromUrl();
+      var select = document.getElementById('deploymentSelect');
+      select.value = dep;
+      setStatus('Selected from URL: ' + dep);
+
+      select.addEventListener('change', function () {
+        reloadWithDep(select.value);
+      });
+
+      loadChat(dep);
+    })();
+  </script>
+</body>
+</html>
