@@ -91,8 +91,26 @@
             }
 
             document.getElementById('launch-chat').addEventListener('click', () => callChatApi('launchChat'));
-            document.getElementById('minimize-chat').addEventListener('click', () => callChatApi('minimizeChat'));
-            document.getElementById('maximize-chat').addEventListener('click', () => callChatApi('maximizeChat'));
+            document.getElementById('minimize-chat').addEventListener('click', () => {
+                callChatApi('minimizeChat');
+                const c = document.getElementById('chat-container');
+                c.style.height = '0';
+                c.style.minHeight = '0';
+                c.style.border = 'none';
+            });
+            function restoreChatContainer() {
+                const c = document.getElementById('chat-container');
+                c.style.height = 'min(742px, calc(100vh - 10rem))';
+                c.style.minHeight = '480px';
+                c.style.border = '1px solid #c9c9c9';
+            }
+
+            document.getElementById('maximize-chat').addEventListener('click', () => {
+                callChatApi('maximizeChat');
+                restoreChatContainer();
+            });
+
+            window.addEventListener('onEmbeddedMessagingWindowMaximized', restoreChatContainer);
 
             function initEmbeddedMessaging() {
                 try {
