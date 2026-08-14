@@ -111,7 +111,15 @@
             });
 
             window.addEventListener('onEmbeddedMessagingWindowMaximized', restoreChatContainer);
+            
+            window.addEventListener("onEmbeddedMessagingButtonCreated", (event) => {
+                console.log("Received the onEmbeddedMessagingButtonCreated event…");
+            });
 
+            window.addEventListener("onEmbeddedMessagingReady", (event) => {
+                console.log("Received the onEmbeddedMessagingReady event…");
+            });
+            
             function initEmbeddedMessaging() {
                 try {
                     embeddedservice_bootstrap.settings.language = 'en';
