@@ -1,52 +1,33 @@
+
 <!DOCTYPE HTML>
-<html lang="en-US">
-<head>
-  <meta HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE" />
-  <meta HTTP-EQUIV="Expires" content="Mon, 01 Jan 1990 12:00:00 GMT" />
-  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
+<html lang="en-US"><head><script src="/static/111213/js/perf/stub.js" type="text/javascript"></script><script type="text/javascript">window.Sfdc = window.Sfdc || {};
+Sfdc.xdomain = Sfdc.xdomain || {};
+Sfdc.xdomain.sfdcXDomainProxy = 'https://racv--uat1.sandbox.my.site.com/support/console/xdomain/30.0/crossDomainProxy.html';
+</script><script src="/support/console/xdomain/30.0/xdomain.js" type="text/javascript"></script><script src="/jslibrary/1752551382262/ui-sfdc-javascript-impl/SfdcCore.js" type="text/javascript"></script><script>
+//<![CDATA[ 
+(function() {
+    window.lmsInitialized = false;
 
-  <!--
-    Salesforce VF framework scripts below.
-    These will be blocked by CORS / auth when served from GitHub Pages — they
-    are all wrapped in try/catch or are non-critical for the chat latency test.
-    Leave them in so the page mirrors the original as closely as possible.
-  -->
-  <script src="https://racv--uat1.sandbox.my.site.com/static/111213/js/perf/stub.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    window.Sfdc = window.Sfdc || {};
-    Sfdc.xdomain = Sfdc.xdomain || {};
-    Sfdc.xdomain.sfdcXDomainProxy = 'https://racv--uat1.sandbox.my.site.com/support/console/xdomain/30.0/crossDomainProxy.html';
-  </script>
-  <script src="https://racv--uat1.sandbox.my.site.com/support/console/xdomain/30.0/xdomain.js" type="text/javascript"></script>
-  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1752551382262/ui-sfdc-javascript-impl/SfdcCore.js" type="text/javascript"></script>
-  <script>
-    //<![CDATA[
-    (function() {
-        window.lmsInitialized = false;
-        if (!window.lmsConfig) {
-            window.lmsConfig = {
-                lmsRegistry: {},
-            };
-            window.lmsInitialized = true;
-        } else {
-            window.console.error('window.lmsConfig has already been defined.');
-        }
-    })();
-    //]]>
-  </script>
-  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1773444835262/sfdc/AuraAlohaFrameNavigator.js" type="text/javascript"></script>
-  <script src="https://racv--uat1.sandbox.my.site.com/sforce/one/67.0/api.js" type="text/javascript"></script>
-  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1746634855262/sfdc/IframeThirdPartyContextLogging.js" type="text/javascript"></script>
-  <script src="https://racv--uat1.sandbox.my.site.com/jslibrary/1647410351262/sfdc/NetworkTracking.js" type="text/javascript"></script>
-  <script>try{ NetworkTracking.init('https://racv--uat1.sandbox.my.site.com/_ui/networks/tracking/NetworkTrackingServlet', 'network', '0669p0000034RCn'); }catch(x){}try{ NetworkTracking.logPageView();}catch(x){}</script>
-  <script>
-    (function(UITheme) {
-        UITheme.getUITheme = function() {
-            return UserContext.uiTheme;
+    // only initialize config data if not already present.  If present someone else is attempting to spoof it.
+    if(!window.lmsConfig) {
+    
+        window.lmsConfig = {
+            lmsRegistry: {},
         };
-    }(window.UITheme = window.UITheme || {}));
-  </script>
+        window.lmsInitialized = true;
+    } else {
+        window.console.error('window.lmsConfig has already been defined.');
+    }})();
+//]]></script><script src="/jslibrary/1773444835262/sfdc/AuraAlohaFrameNavigator.js" type="text/javascript"></script><script src="/sforce/one/67.0/api.js" type="text/javascript"></script><script src="/jslibrary/1746634855262/sfdc/IframeThirdPartyContextLogging.js" type="text/javascript"></script><script src="/jslibrary/1647410351262/sfdc/NetworkTracking.js" type="text/javascript"></script><script>try{ NetworkTracking.init('/_ui/networks/tracking/NetworkTrackingServlet', 'network', '0669p0000034RCn'); }catch(x){}try{ NetworkTracking.logPageView();}catch(x){}</script><script>(function(UITheme) {
+    UITheme.getUITheme = function() { 
+        return UserContext.uiTheme;
+    };
+}(window.UITheme = window.UITheme || {}));</script></head><body>
+<head>
+<meta HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE" />
+<meta HTTP-EQUIV="Expires" content="Mon, 01 Jan 1990 12:00:00 GMT" />
 
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
   <style type="text/css">
     html, body {
       margin: 0;
@@ -146,6 +127,8 @@
           <strong>URL shortcut:</strong>
           <code>?dep=default</code> or
           <code>?dep=mobile</code>
+          &#8212; example:
+          <code>https://racv--uat1.sandbox.my.site.com/s/chat-latency?dep=mobile</code>
         </p>
       </div>
       <div class="status" id="status">Loading deployment&#8230;</div>
@@ -161,29 +144,49 @@
         label: 'Default',
         orgId: '00D9p000008D5DN',
         name: 'RACV_Enhanced_Chat',
-        siteUrl: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392',
+        siteUrl: 'https://orgfarm-773afb6398.my.site-com.y3qrxikvd1sc1kf91y7h8hy9x1cq.wc.crm.dev:6101/ESWCWC11786673069424',
         scrt2URL: 'https://racv--uat1.sandbox.my.salesforce-scrt.com',
-        bootstrapSrc: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392/assets/js/bootstrap.min.js'
+        bootstrapSrc: 'https://orgfarm-773afb6398.my.site-com.y3qrxikvd1sc1kf91y7h8hy9x1cq.wc.crm.dev:6101/ESWCWC11786673069424/assets/js/bootstrap.min.js'
       },
       mobile: {
         label: 'Mobile test',
         orgId: '00D9p000008D5DN',
         name: 'RACV_Enhanced_Chat_Mobile_Test',
-        siteUrl: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392',
+        siteUrl: 'https://orgfarm-773afb6398.my.site-com.y3qrxikvd1sc1kf91y7h8hy9x1cq.wc.crm.dev:6101/ESWCWC11786673069424',
         scrt2URL: 'https://racv--uat1.sandbox.my.salesforce-scrt.com',
-        bootstrapSrc: 'https://racv--uat1.sandbox.my.site.com/ESWRACVEnhancedChat1767690195392/assets/js/bootstrap.min.js'
+        bootstrapSrc: 'https://orgfarm-773afb6398.my.site-com.y3qrxikvd1sc1kf91y7h8hy9x1cq.wc.crm.dev:6101/ESWCWC11786673069424/assets/js/bootstrap.min.js'
       }
     };
 
-    // When hosted outside Salesforce the iframe trick no longer works — just
-    // read from this page's own query string.
+    // Community URL has ?dep=...; VF iframe often does not — read parent when possible
+    function getQuerySearch() {
+      try {
+        if (window.parent && window.parent !== window && window.parent.location) {
+          return window.parent.location.search || '';
+        }
+      } catch (e) {
+        // cross-origin iframe: fall through
+      }
+      return window.location.search || '';
+    }
+
     function getDepFromUrl() {
-      var params = new URLSearchParams(window.location.search);
+      var params = new URLSearchParams(getQuerySearch());
       var dep = params.get('dep');
       return (dep === 'mobile' || dep === 'default') ? dep : 'default';
     }
 
     function reloadWithDep(dep) {
+      try {
+        if (window.parent && window.parent !== window && window.parent.location) {
+          var parentUrl = new URL(window.parent.location.href);
+          parentUrl.searchParams.set('dep', dep);
+          window.parent.location.replace(parentUrl.toString());
+          return;
+        }
+      } catch (e) {
+        // cross-origin: fall through
+      }
       var url = new URL(window.location.href);
       url.searchParams.set('dep', dep);
       window.location.replace(url.toString());
@@ -237,5 +240,4 @@
       loadChat(dep);
     })();
   </script>
-</body>
-</html>
+</body><span id="j_id0:j_id2"></span><script>if (this.SfdcApp && this.SfdcApp.projectOneNavigator) { SfdcApp.projectOneNavigator.sendTitleToParent('Chat Latency'); } </script></body></html>
