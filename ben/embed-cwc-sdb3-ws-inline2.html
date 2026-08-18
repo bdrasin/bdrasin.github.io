@@ -79,55 +79,72 @@
                 <button type="button" id="maximize-chat">Maximize chat</button>
             </div>
         </main>
-
         <script>
+            const chatContainer = document.getElementById('chat-container');
+        
             function callChatApi(method) {
                 const api = window.embeddedservice_bootstrap?.utilAPI;
-                if (!api) {
+        
+                if (typeof api?.[method] !== 'function') {
                     console.error(`Cannot call ${method}: Embedded Messaging is not ready.`);
                     return;
                 }
-                api[method]().catch((error) => console.error(`${method} failed:`, error));
+        
+                api[method]().catch((error) => {
+                    console.error(`${method} failed:`, error);
+                });
             }
-
-            document.getElementById('launch-chat').addEventListener('click', () => callChatApi('launchChat'));
+        
+            function minimizeChatContainer() {
+                chatContainer.style.height = '0';
+                chatContainer.style.minHeight = '0';
+                chatContainer.style.border = 'none';
+            }
+        
+            function maximizeChatContainer() {
+                chatContainer.style.height = 'min(742px, calc(100vh - 10rem))';
+                chatContainer.style.minHeight = '480px';
+                chatContainer.style.border = '1px solid #c9c9c9';
+            }
+        
+            document.getElementById('launch-chat').addEventListener('click', () => {
+                callChatApi('launchChat');
+            });
+        
             document.getElementById('minimize-chat').addEventListener('click', () => {
                 callChatApi('minimizeChat');
-                const c = document.getElementById('chat-container');
-                c.style.height = '0';
-                c.style.minHeight = '0';
-                c.style.border = 'none';
             });
-            function restoreChatContainer() {
-                const c = document.getElementById('chat-container');
-                c.style.height = 'min(742px, calc(100vh - 10rem))';
-                c.style.minHeight = '480px';
-                c.style.border = '1px solid #c9c9c9';
-            }
-
+        
             document.getElementById('maximize-chat').addEventListener('click', () => {
                 callChatApi('maximizeChat');
-                restoreChatContainer();
             });
-
-            window.addEventListener('onEmbeddedMessagingWindowMaximized', restoreChatContainer);
-            
-            window.addEventListener("onEmbeddedMessagingButtonCreated", (event) => {
-                console.log("Received the onEmbeddedMessagingButtonCreated event…");
+        
+            window.addEventListener(
+                'onEmbeddedMessagingWindowMinimized',
+                minimizeChatContainer
+            );
+        
+            window.addEventListener(
+                'onEmbeddedMessagingWindowMaximized',
+                maximizeChatContainer
+            );
+        
+            window.addEventListener('onEmbeddedMessagingButtonCreated', () => {
+                console.log('Received the onEmbeddedMessagingButtonCreated event.');
             });
-
-            window.addEventListener("onEmbeddedMessagingReady", (event) => {
-                console.log("Received the onEmbeddedMessagingReady event…");
+        
+            window.addEventListener('onEmbeddedMessagingReady', () => {
+                console.log('Received the onEmbeddedMessagingReady event.');
             });
-            
+        
             function initEmbeddedMessaging() {
                 try {
                     embeddedservice_bootstrap.settings.language = 'en';
                     embeddedservice_bootstrap.settings.devMode = true;
                     embeddedservice_bootstrap.settings.disableInlineAutoLaunch = true;
                     embeddedservice_bootstrap.settings.displayMode = 'inline';
-                    embeddedservice_bootstrap.settings.targetElement = document.getElementById('chat-container');
-
+                    embeddedservice_bootstrap.settings.targetElement = chatContainer;
+        
                     embeddedservice_bootstrap.init(
                         '00DSB00000da1NJ',
                         'CWC03_External',
