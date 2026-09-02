@@ -1,0 +1,55 @@
+<!--
+  Minimal host-page demo listener for the ProductChoiceList Lightning Type.
+
+  This is the "parent page" side of the two-way communication demo. It does
+  NOT go in the Lightning Type bundle — it represents the arbitrary web page
+  (or experience site) that embeds the enhanced chat iframe via bootstrap.js
+  (V1) or init.js (V2).
+
+  Not wired up yet: sending the clicked productId back into the conversation
+  via sendMessage()/setSessionContext(). That's the next step once this
+  half of the loop (agent -> host page) is confirmed working.
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ProductChoiceList host page listener demo</title>
+  </head>
+  <body>
+    <h1>Products from chat</h1>
+    <div id="product-container"></div>
+
+    <script>
+      // Must match HOST_PAGE_EVENT_NAME in productChoiceListRenderer.js
+      const HOST_PAGE_EVENT_NAME = "productChoicesAvailable";
+
+      window.addEventListener(HOST_PAGE_EVENT_NAME, (event) => {
+        console.log(`Received the ${HOST_PAGE_EVENT_NAME} event...`);
+        console.log("Event detail: ", event.detail); // { products: [{ productId, imageUrl }, ...] }
+
+        const { products = [] } = event.detail ?? {};
+        const container = document.getElementById("product-container");
+        container.innerHTML = "";
+
+        products.forEach(({ productId, imageUrl }) => {
+          const img = document.createElement("img");
+          img.src = imageUrl;
+          img.alt = productId;
+          img.style.cursor = "pointer";
+          img.style.maxWidth = "120px";
+          img.style.margin = "4px";
+
+          // Placeholder for the next step of the demo: clicking a product
+          // should call back into the embedded chat client's public API
+          // (sendMessage() and/or setSessionContext()) with productId.
+          img.addEventListener("click", () => {
+            console.log(`Clicked product ${productId} (not yet wired to sendMessage/setSessionContext)`);
+          });
+
+          container.appendChild(img);
+        });
+      });
+    </script>
+  </body>
+</html>
