@@ -34,7 +34,12 @@
 
         products.forEach(({ productId, imageUrl }) => {
           const img = document.createElement("img");
-          img.src = imageUrl;
+          // The Salesforce SSE layer redacts URLs in action output, so
+          // imageUrl arrives here as the literal string "URL_Redacted"
+          // instead of the real picsum URL. productId still comes through
+          // correctly, so rebuild the image URL from it instead of trusting
+          // the (redacted) imageUrl field.
+          img.src = `https://picsum.photos/seed/${productId}/400/300`;
           img.alt = productId;
           img.style.cursor = "pointer";
           img.style.maxWidth = "120px";
