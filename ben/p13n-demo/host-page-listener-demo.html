@@ -50,6 +50,25 @@
           container.appendChild(img);
         });
       });
+
+      function initEmbeddedMessaging() {
+    		try {
+    			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+    
+    			embeddedservice_bootstrap.init(
+    				'00DSB00001CAu6L',
+    				'ASA_1',
+    				'https://orgfarm-8c60cc881b.test1.my.pc-rnd.site.com/ESWASA11788317609894',
+    				{
+    					scrt2URL: 'https://orgfarm-8c60cc881b.test1.my.pc-rnd.salesforce-scrt.com'
+    				}
+    			);
+    		} catch (err) {
+    			console.error('Error loading Embedded Messaging: ', err);
+    		}
+    	};
+      
     </script>
+    <script type='text/javascript' src='https://orgfarm-8c60cc881b.test1.my.pc-rnd.site.com/ESWASA11788317609894/assets/js/bootstrap.js' onload='initEmbeddedMessaging()'></script>
   </body>
 </html>
