@@ -24,24 +24,48 @@
       // Must match HOST_PAGE_EVENT_NAME in productChoiceListRenderer.js
       const HOST_PAGE_EVENT_NAME = "productChoicesAvailable";
 
+      // Gate 1 — sendTextMessage availability.
       // sendTextMessage must not be called before the Embedded Messaging client
-      // finishes booting (onEmbeddedMessagingReady). Track readiness here.
+      // finishes booting. onEmbeddedMessagingReady signals that it's safe.
       let embeddedMessagingReady = false;
       window.addEventListener("onEmbeddedMessagingReady", () => {
         embeddedMessagingReady = true;
         console.log("Embedded Messaging ready — sendTextMessage is now available.");
       });
 
+      // Gate 2 — live SSE vs. transcript replay.
+      // On page reload the widget replays its transcript, which re-mounts any
+      // renderer LWCs and re-dispatches their dispatchEventToHostPage calls.
+      // onEmbeddedMessageSent only fires for real SSE-delivered events (not
+      // during replay), so we use it as a signal that the widget has left
+      // replay mode and is now processing live activity. Any
+      // productChoicesAvailable event that arrives before the first
+      // onEmbeddedMessageSent is from the replay and should be ignored.
+      //
+      // Note: this works for this demo because the user must explicitly ask for
+      // products (sending a message → onEmbeddedMessageSent) before the agent
+      // can dispatch product images. If product images could arrive unsolicited
+      // (e.g. a proactive agent push), a more robust approach would be needed.
+      let liveSessionReady = false;
+      window.addEventListener("onEmbeddedMessageSent", () => {
+        if (!liveSessionReady) {
+          liveSessionReady = true;
+          console.log("onEmbeddedMessageSent fired — live session gate is now open.");
+        }
+      });
+
       window.addEventListener(HOST_PAGE_EVENT_NAME, (event) => {
         console.log(`Received the ${HOST_PAGE_EVENT_NAME} event...`);
         console.log("Event detail: ", event.detail); // { products: [{ productId, imageUrl }, ...] }
 
-        // Note: on page reload the chat replays its transcript, which re-mounts
-        // the renderer LWC and re-dispatches this event — so the images will
-        // re-appear. Proper deduplication requires a stable per-message entry ID
-        // in the payload (the renderer would need to include the conversation
-        // entry identifier so the host page can deduplicate via sessionStorage).
-        // Left as a demo limitation for now.
+        if (!liveSessionReady) {
+          console.log(
+            `${HOST_PAGE_EVENT_NAME} received before onEmbeddedMessageSent — ` +
+            `assuming transcript replay, ignoring.`
+          );
+          return;
+        }
+
         const { products = [] } = event.detail ?? {};
         const container = document.getElementById("product-container");
         container.innerHTML = "";
@@ -83,7 +107,7 @@
           container.appendChild(img);
         });
       });
-
+      
       function initEmbeddedMessaging() {
     		try {
     			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
