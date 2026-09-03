@@ -24,10 +24,24 @@
       // Must match HOST_PAGE_EVENT_NAME in productChoiceListRenderer.js
       const HOST_PAGE_EVENT_NAME = "productChoicesAvailable";
 
+      // sendTextMessage must not be called before the Embedded Messaging client
+      // finishes booting (onEmbeddedMessagingReady). Track readiness here.
+      let embeddedMessagingReady = false;
+      window.addEventListener("onEmbeddedMessagingReady", () => {
+        embeddedMessagingReady = true;
+        console.log("Embedded Messaging ready — sendTextMessage is now available.");
+      });
+
       window.addEventListener(HOST_PAGE_EVENT_NAME, (event) => {
         console.log(`Received the ${HOST_PAGE_EVENT_NAME} event...`);
         console.log("Event detail: ", event.detail); // { products: [{ productId, imageUrl }, ...] }
 
+        // Note: on page reload the chat replays its transcript, which re-mounts
+        // the renderer LWC and re-dispatches this event — so the images will
+        // re-appear. Proper deduplication requires a stable per-message entry ID
+        // in the payload (the renderer would need to include the conversation
+        // entry identifier so the host page can deduplicate via sessionStorage).
+        // Left as a demo limitation for now.
         const { products = [] } = event.detail ?? {};
         const container = document.getElementById("product-container");
         container.innerHTML = "";
@@ -45,11 +59,25 @@
           img.style.maxWidth = "120px";
           img.style.margin = "4px";
 
-          // Placeholder for the next step of the demo: clicking a product
-          // should call back into the embedded chat client's public API
-          // (sendMessage() and/or setSessionContext()) with productId.
+          // Round-trip: clicking a product sends a visitor message back into
+          // the active conversation via the Embedded Messaging sendTextMessage
+          // API. The agent receives it just like a typed message.
           img.addEventListener("click", () => {
-            console.log(`Clicked product ${productId} (not yet wired to sendMessage/setSessionContext)`);
+            if (!embeddedMessagingReady) {
+              console.warn(
+                `sendTextMessage not yet available — onEmbeddedMessagingReady has not fired. ` +
+                `Clicked product: ${productId}`
+              );
+              return;
+            }
+            embeddedservice_bootstrap.utilAPI
+              .sendTextMessage(`I clicked on image id ${productId}`)
+              .then(() => {
+                console.log(`sendTextMessage succeeded for product ${productId}`);
+              })
+              .catch((error) => {
+                console.error(`sendTextMessage failed for product ${productId}:`, error);
+              });
           });
 
           container.appendChild(img);
