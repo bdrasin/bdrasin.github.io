@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<title>W-23955635 — Pause Session Continuity Test Harness</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1f232c;
+    --border: #2b303b;
+    --text: #e6e8ec;
+    --muted: #9aa3b2;
+    --accent: #4c9aff;
+    --good: #3fb950;
+    --bad: #f85149;
+    --warn: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px;
+    line-height: 1.4;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 12px; color: var(--text); }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .panel-2 { background: var(--panel-2); }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; margin-top: 10px; }
+  select, input[type="text"] {
+    width: 100%;
+    background: #0d0f13;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  button {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #08111f; border-color: var(--accent); font-weight: 600; }
+  button.danger { background: var(--bad); color: #1a0505; border-color: var(--bad); font-weight: 600; }
+  button.warn { background: var(--warn); color: #241a00; border-color: var(--warn); font-weight: 600; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .switch { position: relative; display: inline-block; width: 42px; height: 22px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: #3a3f4b; border-radius: 22px; transition: .15s;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background: white; border-radius: 50%; transition: .15s;
+  }
+  input:checked + .slider { background: var(--accent); }
+  input:checked + .slider:before { transform: translateX(20px); }
+  #eventLog, #storageDump {
+    background: #0a0c10; border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 11.5px;
+    max-height: 260px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;
+  }
+  .log-line { padding: 2px 0; border-bottom: 1px dashed #1e222b; }
+  .log-line .ts { color: var(--muted); margin-right: 6px; }
+  .log-line.evt { color: #7ee787; }
+  .log-line.act { color: #79c0ff; }
+  .log-line.err { color: var(--bad); }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--panel-2); font-size: 11px; text-transform: uppercase; color: var(--muted); }
+  td.steps, td.expected { white-space: pre-line; }
+  select.status { width: auto; padding: 3px 4px; font-size: 12px; }
+  select.status.pass { color: var(--good); }
+  select.status.fail { color: var(--bad); }
+  select.status.pending { color: var(--warn); }
+  textarea.notes {
+    width: 100%; min-height: 40px; background: #0d0f13; color: var(--text);
+    border: 1px solid var(--border); border-radius: 4px; font-size: 12px; padding: 4px;
+    font-family: inherit; resize: vertical;
+  }
+  .badge {
+    display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 6px;
+    border-radius: 4px; margin-right: 4px; text-transform: uppercase;
+  }
+  .badge.p0 { background: #4a1616; color: #ff8181; }
+  .badge.p1 { background: #4a3a16; color: #ffcf6b; }
+  .config-item { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+  .config-item b { color: var(--text); }
+  .fab-config {
+    position: fixed; bottom: 12px; right: 12px; font-size: 10px; color: var(--muted);
+  }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+
+<h1>W-23955635 — Pause Session Continuity Test Harness</h1>
+<div class="subtitle">
+  Embedded Messaging (Token AUTH) — verifies session restore stays paused until the host calls
+  <code>setIdentityToken</code> or <code>clearSession</code>, with no FAB/history flash. Deployment:
+  <code>cwc_auth_1</code> on org <code>00Dg800000DfF8T</code>.
+</div>
+
+<div class="grid">
+  <!-- LEFT COLUMN: CONTROLS -->
+  <div>
+    <div class="panel">
+      <h2>1 · Pause Session Continuity</h2>
+      <div class="toggle-row">
+        <span>pauseSessionContinuity</span>
+        <label class="switch">
+          <input type="checkbox" id="pauseToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="config-item" style="margin-top:8px;">
+        Applied to <code>embeddedservice_bootstrap.settings.pauseSessionContinuity</code>
+        <b>before</b> <code>init()</code> runs. Persisted across reloads — flip it, then use
+        the Reload button below so it takes effect on the next boot.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>2 · Seed / Select User</h2>
+      <label for="userSelect">Active user (JWT subject)</label>
+      <select id="userSelect">
+        <option value="UserA">UserA</option>
+        <option value="UserB">UserB</option>
+      </select>
+      <div class="row">
+        <button id="btnFetchToken" class="primary">setIdentityToken (fetch JWT)</button>
+      </div>
+      <div class="row">
+        <button id="btnBadExpired" class="warn">Send expired/malformed JWT</button>
+        <button id="btnBadEmpty" class="warn">Send empty JWT</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>3 · Clear Session</h2>
+      <div class="row">
+        <button id="btnClearSession">clearSession()</button>
+        <button id="btnClearSessionTrue" class="danger">clearSession(true) — end server session</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>4 · Page / Storage Controls</h2>
+      <div class="row">
+        <button id="btnReload" class="primary">Reload page</button>
+        <button id="btnClearStorage" class="danger">Clear ALL site storage</button>
+        <button id="btnDumpStorage">Refresh storage dump</button>
+      </div>
+      <div id="storageDump" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: EVENT LOG + SCENARIOS -->
+  <div>
+    <div class="panel panel-2">
+      <div class="flex-between">
+        <h2>Live Event Log</h2>
+        <button id="btnClearLog">Clear log</button>
+      </div>
+      <div id="eventLog"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Test Scenarios — W-23955635 (Taleggio · pause session continuity)</h2>
+      <table id="scenarioTable">
+        <thead>
+          <tr>
+            <th style="width:16%">Scenario</th>
+            <th style="width:30%" class="steps">Steps</th>
+            <th style="width:28%" class="expected">Expected Result</th>
+            <th style="width:6%">Pri</th>
+            <th style="width:10%">Status</th>
+            <th style="width:10%">Notes</th>
+          </tr>
+        </thead>
+        <tbody><!-- populated by JS from SCENARIOS --></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="fab-config">setIdentityToken / clearSession → embeddedservice_bootstrap.userVerificationAPI</div>
+
+<script>
+  // ---------------------------------------------------------------
+  // Test scenario runbook (from ESW Integration 264 Taleggio Test
+  // Plans — Work ID W-23955635, Test Suite "pause session
+  // continuity"). Rendered below as an interactive checklist whose
+  // pass/fail/notes persist in localStorage across reloads, since
+  // most scenarios require reloading the page mid-test.
+  // ---------------------------------------------------------------
+  const SCENARIOS = [
+    {
+      id: "1",
+      name: "No leftover JWT / no host API calls",
+      steps: "0. Seed leftover UserA session (log in as UserA, start chat, send unique message, leave open, reload).\n1. Set pauseSessionContinuity = true.\n2. Reload.\n3. Do not call any UV API.",
+      expected: "No FAB/iframe flash. No UserA history. onEmbeddedMessagingReady fires. onEmbeddedMessagingButtonCreated does NOT.",
+      pri: "P0"
+    },
+    {
+      id: "2",
+      name: "Matching token resumes open chat",
+      steps: "1. Seed leftover open UserA session.\n2. Enable pause, reload.\n3. On Ready, setIdentityToken with UserA JWT (sub matches stored uid).",
+      expected: "History loads. FAB revealed (ButtonCreated). Chat auto-opens with UserA transcript. No empty/other-user flash.",
+      pri: "P0"
+    },
+    {
+      id: "3",
+      name: "Matching token resumes minimized chat",
+      steps: "1. Seed leftover UserA session, minimize chat.\n2. Enable pause, reload.\n3. On Ready, setIdentityToken(UserA).\n4. Click FAB.",
+      expected: "FAB appears, chat does not auto-maximize. Opening FAB shows UserA history.",
+      pri: "P1"
+    },
+    {
+      id: "4",
+      name: "Mismatch clears; second token starts new user",
+      steps: "1. Seed leftover UserA.\n2. Enable pause, reload.\n3. On Ready, setIdentityToken(UserB).\n4. On the new Ready fired after iframe reset, setIdentityToken(UserB) again.",
+      expected: "1st call: no UserA flash, session cleared, FAB stays hidden, server session NOT ended. 2nd call: UserB gets a new chat, no UserA history.",
+      pri: "P0"
+    },
+    {
+      id: "5",
+      name: "clearSession() while paused",
+      steps: "1. Seed leftover UserA.\n2. Enable pause, reload.\n3. On Ready, clearSession().\n4. After reboot Ready, setIdentityToken(UserA).",
+      expected: "Storage wiped, iframe rebuilt, WindowClosed fires, no UserA UI. After token: new empty UserA chat (FAB waits until token). Use clearSession(true) to also assert the Messaging Session ended server-side.",
+      pri: "P0"
+    },
+    {
+      id: "6",
+      name: "No leftover JWT — new conversation",
+      steps: "1. Clear site storage.\n2. Enable pause, load.\n3. On Ready, setIdentityToken(UserA).",
+      expected: "Pause path skipped. FAB appears. New empty chat, no auto-open. User can start a conversation.",
+      pri: "P0"
+    },
+    {
+      id: "7",
+      name: "Setting off — existing continuity",
+      steps: "1. Seed leftover open UserA session.\n2. Leave pauseSessionContinuity unset/false.\n3. Reload. Do not call UV APIs.",
+      expected: "FAB + history restore on load. Chat auto-opens. No host API required.",
+      pri: "P0"
+    },
+    {
+      id: "8",
+      name: "Pause ignored outside token AUTH",
+      steps: "1. Guest (unauth) deployment.\n2. Seed leftover guest session.\n3. Set pauseSessionContinuity = true, reload.\n4. Repeat on SalesforceSessionAuth / exp-site credential UV if available.",
+      expected: "Pause ignored. Existing FAB/continuity for that mode is unchanged. NOTE: not applicable to this harness — cwc_auth_1 is Token AUTH only; test against a separate Guest/SalesforceSessionAuth deployment.",
+      pri: "P1"
+    },
+    {
+      id: "9",
+      name: "Bad or early token stays paused",
+      steps: "1. Seed leftover UserA.\n2. Enable pause, reload.\n3. Call setIdentityToken before Ready (open devtools console immediately on load and call it manually before this page's Ready handler fires).\n4. After Ready, pass expired/malformed/empty JWT (use the buttons in panel 2).\n5. Then pass a valid UserA token.",
+      expected: "Steps 3-4: API rejected/no-op; FAB stays hidden; leftover session not shown. Step 5: resumes exactly like scenario 2.",
+      pri: "P1"
+    }
+  ];
+
+  const LS = {
+    pause: "th_pauseSessionContinuity",
+    user: "activeUser",
+    log: "th_eventLog",
+    scenarioState: "th_scenarioState"
+  };
+
+  // ---- Pause toggle: must be read + applied before init() runs ----
+  const pauseToggle = document.getElementById("pauseToggle");
+  pauseToggle.checked = localStorage.getItem(LS.pause) === "true";
+  pauseToggle.addEventListener("change", () => {
+    localStorage.setItem(LS.pause, pauseToggle.checked ? "true" : "false");
+    logEvent("act", `pauseSessionContinuity set to ${pauseToggle.checked} (takes effect after reload)`);
+  });
+
+  // ---- User selector ----
+  const userSelect = document.getElementById("userSelect");
+  userSelect.value = localStorage.getItem(LS.user) || "UserA";
+  userSelect.addEventListener("change", () => {
+    localStorage.setItem(LS.user, userSelect.value);
+    logEvent("act", `Active user set to ${userSelect.value}`);
+  });
+  if (!localStorage.getItem(LS.user)) localStorage.setItem(LS.user, userSelect.value);
+
+  // ---- Event log (persisted across reloads) ----
+  const eventLogEl = document.getElementById("eventLog");
+
+  function loadLog() {
+    try { return JSON.parse(localStorage.getItem(LS.log) || "[]"); } catch (e) { return []; }
+  }
+  function saveLog(entries) {
+    localStorage.setItem(LS.log, JSON.stringify(entries.slice(-300)));
+  }
+  function renderLog() {
+    const entries = loadLog();
+    eventLogEl.innerHTML = entries.map(e =>
+      `<div class="log-line ${e.type}"><span class="ts">${e.ts}</span>${escapeHtml(e.msg)}</div>`
+    ).join("");
+    eventLogEl.scrollTop = eventLogEl.scrollHeight;
+  }
+  function logEvent(type, msg) {
+    const entries = loadLog();
+    entries.push({ ts: new Date().toISOString().split("T")[1].replace("Z", ""), type, msg });
+    saveLog(entries);
+    renderLog();
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+  document.getElementById("btnClearLog").addEventListener("click", () => {
+    saveLog([]);
+    renderLog();
+  });
+  renderLog();
+  logEvent("act", `--- page (re)loaded --- pauseSessionContinuity=${pauseToggle.checked}, activeUser=${userSelect.value}`);
+
+  // ---- Storage dump ----
+  function dumpStorage() {
+    const dump = document.getElementById("storageDump");
+    const lines = [];
+    lines.push("localStorage:");
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      lines.push(`  ${k} = ${localStorage.getItem(k)}`);
+    }
+    lines.push("sessionStorage:");
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i);
+      lines.push(`  ${k} = ${sessionStorage.getItem(k)}`);
+    }
+    dump.textContent = lines.join("\n");
+  }
+  document.getElementById("btnDumpStorage").addEventListener("click", dumpStorage);
+  dumpStorage();
+
+  document.getElementById("btnClearStorage").addEventListener("click", () => {
+    if (!confirm("This clears ALL localStorage + sessionStorage for this origin (including the test harness's own toggle/log/scenario state). Continue?")) return;
+    localStorage.clear();
+    sessionStorage.clear();
+    alert("Site storage cleared. Reloading...");
+    location.reload();
+  });
+
+  document.getElementById("btnReload").addEventListener("click", () => location.reload());
+
+  // ---- Scenario runbook ----
+  const scenarioState = JSON.parse(localStorage.getItem(LS.scenarioState) || "{}");
+  function saveScenarioState() {
+    localStorage.setItem(LS.scenarioState, JSON.stringify(scenarioState));
+  }
+  const tbody = document.querySelector("#scenarioTable tbody");
+  SCENARIOS.forEach(s => {
+    const state = scenarioState[s.id] || { status: "pending", notes: "" };
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><b>${s.id}. ${s.name}</b></td>
+      <td class="steps">${escapeHtml(s.steps)}</td>
+      <td class="expected">${escapeHtml(s.expected)}</td>
+      <td><span class="badge ${s.pri.toLowerCase()}">${s.pri}</span></td>
+      <td>
+        <select class="status ${state.status}" data-id="${s.id}">
+          <option value="pending" ${state.status === "pending" ? "selected" : ""}>Pending</option>
+          <option value="pass" ${state.status === "pass" ? "selected" : ""}>Pass</option>
+          <option value="fail" ${state.status === "fail" ? "selected" : ""}>Fail</option>
+        </select>
+      </td>
+      <td><textarea class="notes" data-id="${s.id}" placeholder="notes...">${escapeHtml(state.notes)}</textarea></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.addEventListener("change", (e) => {
+    if (!e.target.matches(".status, .notes")) return;
+    const id = e.target.dataset.id;
+    scenarioState[id] = scenarioState[id] || { status: "pending", notes: "" };
+    if (e.target.matches(".status")) {
+      scenarioState[id].status = e.target.value;
+      e.target.className = "status " + e.target.value;
+    } else {
+      scenarioState[id].notes = e.target.value;
+    }
+    saveScenarioState();
+  });
+
+  // ---- JWT fetch + Embedded Messaging control actions ----
+  function porticoURL(subject, opts) {
+    opts = opts || {};
+    const expSeconds = opts.expSeconds != null ? opts.expSeconds : 6000;
+    return "https://portico.sfproxy.controltelemetry.aws-dev2-uswest2.aws.sfdc.cl/api/v1/miaw/getJwtToken" +
+      "?issuer=testIssuer&subject=" + encodeURIComponent(subject) +
+      "&jwtExpInSeconds=" + expSeconds +
+      "&keyId=5f103f1b-ee38-404c-ac94-83c427764813";
+  }
+
+  function callSetIdentityToken(token) {
+    if (typeof embeddedservice_bootstrap === "undefined" || !embeddedservice_bootstrap.userVerificationAPI) {
+      logEvent("err", "embeddedservice_bootstrap.userVerificationAPI not available yet (init not ready?)");
+      return;
+    }
+    embeddedservice_bootstrap.userVerificationAPI.setIdentityToken({
+      identityTokenType: "JWT",
+      identityToken: token
+    });
+    logEvent("act", `setIdentityToken called (token length=${token ? token.length : 0})`);
+  }
+
+  document.getElementById("btnFetchToken").addEventListener("click", () => {
+    const subject = userSelect.value;
+    logEvent("act", `Fetching JWT for subject=${subject}...`);
+    fetch(porticoURL(subject))
+      .then(r => r.json())
+      .then(data => callSetIdentityToken(data.accessToken))
+      .catch(err => logEvent("err", "JWT fetch error: " + err));
+  });
+
+  document.getElementById("btnBadExpired").addEventListener("click", () => {
+    const subject = userSelect.value;
+    logEvent("act", `Fetching ALREADY-EXPIRED JWT for subject=${subject} (jwtExpInSeconds=-60)...`);
+    fetch(porticoURL(subject, { expSeconds: -60 }))
+      .then(r => r.json())
+      .then(data => callSetIdentityToken(data.accessToken || "expired.malformed.token"))
+      .catch(err => {
+        logEvent("err", "Expired-token fetch error (using malformed fallback): " + err);
+        callSetIdentityToken("not.a.valid.jwt");
+      });
+  });
+
+  document.getElementById("btnBadEmpty").addEventListener("click", () => {
+    logEvent("act", "Calling setIdentityToken with EMPTY token");
+    callSetIdentityToken("");
+  });
+
+  document.getElementById("btnClearSession").addEventListener("click", () => {
+    if (typeof embeddedservice_bootstrap === "undefined" || !embeddedservice_bootstrap.userVerificationAPI) {
+      logEvent("err", "embeddedservice_bootstrap.userVerificationAPI not available yet");
+      return;
+    }
+    embeddedservice_bootstrap.userVerificationAPI.clearSession();
+    logEvent("act", "clearSession() called");
+  });
+
+  document.getElementById("btnClearSessionTrue").addEventListener("click", () => {
+    if (typeof embeddedservice_bootstrap === "undefined" || !embeddedservice_bootstrap.userVerificationAPI) {
+      logEvent("err", "embeddedservice_bootstrap.userVerificationAPI not available yet");
+      return;
+    }
+    embeddedservice_bootstrap.userVerificationAPI.clearSession(true);
+    logEvent("act", "clearSession(true) called — also ends server-side Messaging Session");
+  });
+
+  // ---- Embedded Messaging lifecycle events -> log ----
+  ["onEmbeddedMessagingReady", "onEmbeddedMessagingButtonCreated",
+   "onEmbeddedMessagingWindowClosed", "onEmbeddedMessagingWindowMaximized",
+   "onEmbeddedMessagingWindowMinimized",
+   "onEmbeddedMessagingIdentityTokenExpired"].forEach(evt => {
+    window.addEventListener(evt, () => logEvent("evt", `Event fired: ${evt}`));
+  });
+
+  // ---- Embedded Messaging bootstrap ----
+  function initEmbeddedMessaging() {
+    try {
+      embeddedservice_bootstrap.settings.language = 'en_US';
+      embeddedservice_bootstrap.settings.devMode = true;
+
+      // Apply the pauseSessionContinuity flag from the toggle above BEFORE init().
+      embeddedservice_bootstrap.settings.pauseSessionContinuity = pauseToggle.checked;
+      logEvent("act", `Calling init() with pauseSessionContinuity=${pauseToggle.checked}`);
+
+      embeddedservice_bootstrap.init(
+        '00Dg800000DfF8T',
+        'cwc_auth_1',
+        'https://trailsignup-9d3ad5784c6304.demo.my.site.com/ESWcwcauth11787100893692',
+        {
+          scrt2URL: 'https://trailsignup-9d3ad5784c6304.demo.my.salesforce-scrt.com'
+        }
+      );
+    } catch (err) {
+      logEvent("err", "Error loading Embedded Messaging: " + err);
+    }
+  }
+</script>
+<script type="text/javascript"
+        src="https://trailsignup-9d3ad5784c6304.demo.my.site.com/ESWcwcauth11787100893692/assets/js/init.js"
+        onload="initEmbeddedMessaging()"></script>
+
+</body>
+</html>
